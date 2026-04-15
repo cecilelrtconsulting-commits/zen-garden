@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zen Garden - The Mindful Playground</title>
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00897B">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Zen Garden">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ============================================
+           DESIGN SYSTEM - ZENITH PULSE
+        ============================================ */
+        :root {
+            --primary: #00897B;
+            --primary-light: #4DB6AC;
+            --primary-dark: #00695C;
+            --secondary: #FF9800;
+            --secondary-light: #FFB74D;
+            --tertiary: #9C27B0;
+            --tertiary-light: #CE93D8;
+            --danger: #EF5350;
+            --success: #66BB6A;
+            --neutral: #F0F4F4;
+            --neutral-mid: #E0E8E8;
+            --text-main: #263238;
+            --text-light: #90A4AE;
+            --white: #FFFFFF;
+            --glass-bg: rgba(255,255,255,0.72);
+            --glass-border: rgba(255,255,255,0.5);
+            --radius-full: 9999px;
+            --radius-xl: 28px;
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --shadow: 0 4px 24px rgba(0,137,123,0.10);
+            --shadow-lg: 0 8px 40px rgba(0,137,123,0.14);
+            --font-h: 'Plus Jakarta Sans', sans-serif;
+            --font-b: 'Lexend', sans-serif;
+            --t: 0.25s cubic-bezier(0.16,1,0.3,1);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: var(--font-b);
+            background: linear-gradient(135deg, #E0F2F1 0%, #E8EAF6 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* ============================================
+           APP SHELL
+        ============================================ */
+        #app {
+            width: 100%;
+            max-width: 430px;
+            height: 100vh;
+            max-height: 900px;
+            background: var(--neutral);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 60px rgba(0,0,0,0.15);
+            border-radius: 0;
+        }
+
+        /* TOP BAR */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            flex-shrink: 0;
+            z-index: 20;
+        }
+
+        .top-bar-avatar {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--tertiary), var(--tertiary-light));
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1rem;
+        }
+
+        .top-bar-center { display: flex; flex-direction: column; align-items: center; }
+        .top-bar-title { font-family: var(--font-h); font-weight: 800; font-size: 1.1rem; color: var(--primary); letter-spacing: -0.03em; }
+        .top-bar-sub { font-size: 0.72rem; color: var(--text-light); font-weight: 500; }
+
+        .top-bar-action { font-size: 1.1rem; color: var(--text-light); cursor: pointer; padding: 6px; }
+
+        /* MAIN CONTENT */
+        #main {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 20px 18px 90px;
+            scroll-behavior: smooth;
+        }
+
+        #main::-webkit-scrollbar { display: none; }
+
+        /* BOTTOM NAV */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 10px 8px 16px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid var(--glass-border);
+            display: flex;
+            justify-content: space-around;
+            z-index: 20;
+        }
+
+        .nav-btn {
+            background: none; border: none;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 3px;
+            color: var(--text-light);
+            font-family: var(--font-b);
+            font-size: 0.68rem; font-weight: 500;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: var(--radius-lg);
+            transition: var(--t);
+            flex: 1;
+        }
+
+        .nav-btn i { font-size: 1.2rem; transition: var(--t); }
+
+        .nav-btn.active {
+            color: var(--primary);
+            background: rgba(0,137,123,0.08);
+        }
+
+        .nav-btn.active i { transform: translateY(-2px); }
+
+        /* VIEW TRANSITION */
+        .view-enter { animation: viewSlideIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards; }
+        @keyframes viewSlideIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ============================================
+           SHARED COMPONENTS
+        ============================================ */
+        .card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 14px;
+        }
+
+        .section-title {
+            font-family: var(--font-h); font-weight: 700;
+            font-size: 1.05rem; color: var(--text-main);
+            margin-bottom: 12px;
+        }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 3px 10px; border-radius: var(--radius-full);
+            font-size: 0.72rem; font-weight: 700;
+        }
+
+        .badge-primary { background: rgba(0,137,123,0.12); color: var(--primary); }
+        .badge-secondary { background: rgba(255,152,0,0.12); color: var(--secondary); }
+        .badge-tertiary { background: rgba(156,39,176,0.12); color: var(--tertiary); }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 13px 24px; border-radius: var(--radius-full);
+            border: none; font-family: var(--font-h); font-weight: 700; font-size: 0.95rem;
+            cursor: pointer; transition: var(--t); letter-spacing: -0.01em;
+        }
+
+        .btn:active { transform: scale(0.95); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 16px rgba(0,137,123,0.3);
+        }
+
+        .btn-icon {
+            width: 56px; height: 56px;
+            border-radius: 50%; border: none;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; cursor: pointer; transition: var(--t);
+        }
+
+        .btn-icon:active { transform: scale(0.9); }
+
+        .back-btn {
+            background: none; border: none;
+            color: var(--text-light); font-size: 1rem;
+            cursor: pointer; padding: 4px 0;
+            display: flex; align-items: center; gap: 6px;
+            font-family: var(--font-b); font-weight: 500;
+            margin-bottom: 20px; transition: color var(--t);
+        }
+        .back-btn:hover { color: var(--primary); }
+
+        /* INFO ROW */
+        .info-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 4px;
+        }
+
+        /* PROGRESS BAR */
+        .progress-wrap { background: var(--neutral-mid); border-radius: var(--radius-full); height: 10px; overflow: hidden; }
+        .progress-bar { height: 100%; border-radius: var(--radius-full); transition: width 0.6s cubic-bezier(0.16,1,0.3,1); }
+
+        /* XP BUBBLE */
+        .xp-bubble {
+            position: fixed;
+            background: var(--secondary);
+            color: white; font-weight: 700; font-size: 0.85rem;
+            padding: 5px 12px; border-radius: var(--radius-full);
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(255,152,0,0.4);
+            z-index: 9999;
+            animation: bubbleUp 1.2s ease-out forwards;
+        }
+
+        @keyframes bubbleUp {
+            0%   { opacity: 1; transform: translateY(0) scale(1); }
+            80%  { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-60px) scale(1.1); }
+        }
+
+        /* ============================================
+           DASHBOARD VIEW
+        ============================================ */
+        .greeting { margin-bottom: 20px; }
+        .greeting h2 { font-family: var(--font-h); font-size: 1.5rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.03em; }
+        .greeting p  { color: var(--text-light); font-size: 0.88rem; margin-top: 2px; }
+
+        .xp-card { 
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white; 
+        }
+
+        .xp-card .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+        .xp-card .level-badge { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: var(--radius-full); font-size: 0.78rem; font-weight: 700; }
+        .xp-card h3 { font-family: var(--font-h); font-size: 1.1rem; font-weight: 700; }
+        .xp-card .xp-nums { display: flex; justify-content: space-between; font-size: 0.75rem; opacity: 0.8; margin-top: 6px; }
+        .xp-card .progress-wrap { background: rgba(255,255,255,0.25); }
+        .xp-card .progress-bar { background: white; }
+
+        .streak-card {
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .streak-card .streak-info h3 { font-family: var(--font-h); font-size: 1.4rem; font-weight: 800; color: white; }
+        .streak-card .streak-info p  { color: rgba(255,255,255,0.85); font-size: 0.82rem; margin-top: 2px; }
+        .streak-card .flame { font-size: 3rem; animation: flamePulse 2s ease-in-out infinite; }
+
+        @keyframes flamePulse {
+            0%,100% { transform: scale(1) rotate(-3deg); }
+            50%      { transform: scale(1.1) rotate(3deg); }
+        }
+
+        .quest-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--neutral-mid);
+            transition: opacity var(--t);
+        }
+        .quest-item:last-child { border-bottom: none; }
+        .quest-item.done { opacity: 0.45; }
+
+        .quest-icon-wrap {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: var(--neutral); display: flex;
+            align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .quest-text { flex: 1; }
+        .quest-text h4 { font-size: 0.9rem; font-weight: 600; color: var(--text-main); margin-bottom: 2px; }
+
+        .quest-check {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: 2px solid var(--primary); background: none;
+            color: var(--primary); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; transition: var(--t); flex-shrink: 0;
+        }
+        .quest-check:active { transform: scale(0.85); }
+        .quest-check.done { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* ============================================
+           ACTIVITIES VIEW
+        ============================================ */
+        .act-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        .act-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 18px 14px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: var(--t);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .act-card:active { transform: scale(0.95); box-shadow: none; }
+
+        .act-card.rec::after {
+            content: '★ TOP';
+            position: absolute; top: 10px; right: -20px;
+            background: var(--secondary); color: white;
+            font-size: 0.6rem; font-weight: 800;
+            padding: 2px 22px; transform: rotate(45deg);
+        }
+
+        .act-ico {
+            width: 56px; height: 56px; border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.6rem; color: white;
+        }
+
+        .act-ico-yoga { background: linear-gradient(135deg,#80CBC4,var(--primary)); }
+        .act-ico-workout { background: linear-gradient(135deg,var(--secondary-light),var(--secondary)); }
+        .act-ico-walk { background: linear-gradient(135deg,#A5D6A7,#388E3C); }
+        .act-ico-reiki { background: linear-gradient(135deg,var(--tertiary-light),var(--tertiary)); }
+
+        .act-name { font-family: var(--font-h); font-weight: 700; font-size: 1rem; margin-bottom: 6px; }
+        .act-meta { font-size: 0.75rem; color: var(--text-light); font-weight: 500; }
+
+        /* Intensity dots */
+        .intensity { display: flex; gap: 3px; justify-content: center; margin-top: 6px; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--neutral-mid); }
+        .dot.on { background: var(--secondary); }
+
+        /* ============================================
+           WALK TRACKER VIEW
+        ============================================ */
+        .tracker-wrap { display: flex; flex-direction: column; align-items: center; }
+
+        .ring-container { position: relative; width: 220px; height: 220px; margin: 24px auto; }
+
+        .ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .ring-bg { fill: none; stroke: var(--neutral-mid); stroke-width: 14; }
+        .ring-fill { fill: none; stroke: #388E3C; stroke-width: 14; stroke-linecap: round; stroke-dasharray: 628; stroke-dashoffset: 628; transition: stroke-dashoffset 0.5s linear; }
+
+        .ring-center {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            text-align: center;
+        }
+
+        .timer-main { font-family: var(--font-h); font-size: 2.4rem; font-weight: 800; color: var(--text-main); line-height: 1; }
+        .timer-sub  { font-size: 0.78rem; color: var(--text-light); margin-top: 4px; font-weight: 500; }
+
+        .flow-pill {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 20px; border-radius: var(--radius-full);
+            background: var(--neutral-mid); color: var(--text-light);
+            font-weight: 700; font-size: 0.88rem;
+            transition: all 0.5s ease; margin-bottom: 28px;
+        }
+
+        .flow-pill.active {
+            background: var(--secondary); color: white;
+            box-shadow: 0 4px 16px rgba(255,152,0,0.35);
+            animation: pillPulse 2s infinite;
+        }
+
+        @keyframes pillPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.03);} }
+
+        .milestones {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; gap: 6px; margin-bottom: 24px;
+        }
+
+        .milestone {
+            flex: 1; text-align: center;
+            padding: 8px 4px;
+            background: var(--neutral-mid);
+            border-radius: var(--radius-md);
+            font-size: 0.7rem; font-weight: 600;
+            color: var(--text-light); transition: var(--t);
+        }
+
+        .milestone.reached {
+            background: rgba(56,142,60,0.12);
+            color: #388E3C;
+        }
+
+        .controls { display: flex; gap: 16px; align-items: center; }
+
+        /* ============================================
+           REIKI TIMER VIEW
+        ============================================ */
+        .reiki-wrap { display: flex; flex-direction: column; align-items: center; }
+
+        .reiki-orb {
+            width: 230px; height: 230px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--tertiary), var(--tertiary-light));
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: white; margin: 20px auto 20px;
+            box-shadow: 0 12px 40px rgba(156,39,176,0.35);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .reiki-orb.pulsing {
+            animation: orbBreathe 5s ease-in-out infinite;
+        }
+
+        @keyframes orbBreathe {
+            0%,100% { transform: scale(1); box-shadow: 0 12px 40px rgba(156,39,176,0.35); }
+            50%      { transform: scale(1.05); box-shadow: 0 16px 60px rgba(156,39,176,0.55); }
+        }
+
+        .reiki-time { font-family: var(--font-h); font-size: 2.8rem; font-weight: 800; line-height: 1; }
+        .reiki-label { font-size: 0.78rem; opacity: 0.85; margin-top: 4px; font-weight: 500; }
+
+        /* Sub timer ring */
+        .sub-ring-wrap { position: relative; width: 110px; height: 110px; margin: 0 auto 20px; }
+        .sub-ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .sub-ring-bg { fill: none; stroke: rgba(156,39,176,0.15); stroke-width: 8; }
+        .sub-ring-fill { fill: none; stroke: var(--tertiary); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 314; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+        .sub-ring-center {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            text-align: center;
+        }
+        .sub-time-txt { font-family: var(--font-h); font-size: 1.3rem; font-weight: 800; color: var(--tertiary); }
+        .sub-time-lbl { font-size: 0.6rem; color: var(--text-light); font-weight: 600; }
+
+        .reiki-xp-strip {
+            background: var(--white);
+            border-radius: var(--radius-full);
+            padding: 12px 24px;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: var(--shadow);
+            font-weight: 700; color: var(--tertiary);
+            margin-bottom: 24px; font-size: 1rem;
+        }
+
+        /* Flash overlay */
+        #reiki-flash {
+            position: fixed; inset: 0;
+            background: transparent;
+            pointer-events: none; z-index: 9000;
+            transition: background 0.3s ease;
+        }
+
+        /* ============================================
+           WORKOUT VIEW
+        ============================================ */
+        .wo-option {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 18px 20px;
+            display: flex; align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: var(--t);
+            border: 2px solid transparent;
+        }
+        .wo-option:active { transform: scale(0.97); border-color: var(--secondary); }
+        .wo-option:hover  { border-color: rgba(255,152,0,0.3); }
+
+        .wo-option-left  { display: flex; align-items: center; gap: 16px; }
+        .wo-option-icon  {
+            width: 48px; height: 48px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; flex-shrink: 0;
+        }
+        .wo-option-label { font-family: var(--font-h); font-weight: 700; font-size: 1rem; }
+        .wo-option-sub   { font-size: 0.76rem; color: var(--text-light); margin-top: 2px; }
+        .wo-option-xp    {
+            font-family: var(--font-h); font-weight: 800;
+            font-size: 1rem; color: var(--secondary);
+            background: rgba(255,152,0,0.1);
+            padding: 6px 14px; border-radius: var(--radius-full);
+            white-space: nowrap;
+        }
+
+        /* ============================================
+           YOGA VIEW
+        ============================================ */
+        .yoga-flow-card {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 16px 18px;
+            display: flex; align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--t);
+        }
+        .yoga-flow-card:active  { transform: scale(0.97); }
+        .yoga-flow-card:hover   { border-color: var(--flow-color, var(--primary)); background: var(--flow-bg, var(--neutral)); }
+
+        .yoga-flow-left  { display: flex; align-items: center; gap: 14px; }
+        .yoga-flow-icon  {
+            width: 50px; height: 50px; font-size: 1.8rem;
+            border-radius: 14px;
+            background: var(--flow-bg, var(--neutral));
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .yoga-flow-name  { font-family: var(--font-h); font-weight: 700; font-size: 1rem; color: var(--text-main); margin-bottom: 2px; }
+        .yoga-flow-desc  { font-size: 0.75rem; color: var(--text-light); }
+        .yoga-flow-poses { display: flex; gap: 6px; align-items: center; font-size: 1.2rem; }
+
+        /* Phase progress dots */
+        .yoga-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: var(--neutral-mid);
+            transition: var(--t);
+        }
+        .yoga-dot.yoga-dot-active  { background: var(--primary); }
+        .yoga-dot.yoga-dot-current {
+            width: 24px; border-radius: 5px;
+            background: var(--primary);
+            box-shadow: 0 2px 8px rgba(0,137,123,0.4);
+        }
+
+        /* ============================================
+           JOURNEY VIEW
+        ============================================ */
+
+        .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+
+        .stat-tile {
+            background: var(--white);
+            border-radius: var(--radius-xl);
+            padding: 18px 14px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-ico {
+            width: 44px; height: 44px; border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .stat-val { font-family: var(--font-h); font-size: 1.7rem; font-weight: 800; color: var(--text-main); line-height: 1; }
+        .stat-lbl { font-size: 0.75rem; color: var(--text-light); margin-top: 3px; font-weight: 500; }
+
+        /* Bar Chart */
+        .bar-chart-wrap { display: flex; align-items: flex-end; height: 110px; gap: 8px; border-bottom: 1px solid var(--neutral-mid); padding-bottom: 8px; }
+        .bc-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .bc-bar { width: 100%; border-radius: 6px 6px 0 0; min-height: 4px; transition: height 0.9s cubic-bezier(0.16,1,0.3,1); }
+        .bc-lbl { font-size: 0.68rem; color: var(--text-light); font-weight: 600; }
+
+        /* Achievement */
+        .ach-item { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--neutral-mid); }
+        .ach-item:last-child { border-bottom: none; }
+        .ach-emoji { font-size: 2rem; }
+        .ach-title { font-weight: 700; font-size: 0.9rem; }
+        .ach-desc  { font-size: 0.78rem; color: var(--text-light); margin-top: 2px; }
+
+        /* ============================================
+           SOUL VIEW
+        ============================================ */
+        .soul-cover {
+            height: 110px;
+            background: linear-gradient(135deg, var(--tertiary), var(--secondary));
+            border-radius: var(--radius-xl);
+            position: relative;
+            margin-bottom: 54px;
+        }
+
+        .soul-avatar {
+            width: 90px; height: 90px; border-radius: 50%;
+            background: var(--white);
+            border: 4px solid var(--neutral);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.5rem; color: var(--primary);
+            box-shadow: var(--shadow-lg);
+            position: absolute; bottom: -45px; left: 50%; transform: translateX(-50%);
+        }
+
+        .soul-name { font-family: var(--font-h); font-size: 1.3rem; font-weight: 800; text-align: center; margin-bottom: 4px; }
+        .soul-aura { text-align: center; margin-bottom: 24px; }
+
+        .setting-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 0; border-bottom: 1px solid var(--neutral-mid);
+        }
+        .setting-row:last-child { border-bottom: none; }
+
+        .setting-left { display: flex; align-items: center; gap: 12px; }
+        .setting-icon { width: 34px; height: 34px; border-radius: 10px; background: var(--neutral); display: flex; align-items: center; justify-content: center; font-size: 0.95rem; }
+        .setting-label { font-weight: 500; font-size: 0.9rem; }
+
+        /* Toggle */
+        .toggle { position: relative; width: 46px; height: 26px; }
+        .toggle input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; inset: 0; cursor: pointer;
+            background: var(--neutral-mid); border-radius: var(--radius-full); transition: var(--t);
+        }
+        .toggle-slider::before {
+            content: ''; position: absolute;
+            height: 18px; width: 18px; left: 4px; bottom: 4px;
+            background: white; border-radius: 50%;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+            transition: var(--t);
+        }
+        input:checked + .toggle-slider { background: var(--primary); }
+        input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+        .btn-reset {
+            width: 100%; padding: 16px;
+            background: rgba(239,83,80,0.08);
+            color: var(--danger); border: none; border-radius: var(--radius-xl);
+            font-family: var(--font-h); font-weight: 700; font-size: 0.95rem;
+            cursor: pointer; transition: var(--t);
+        }
+        .btn-reset:active { background: rgba(239,83,80,0.18); transform: scale(0.98); }
+
+        /* ============================================
+           ANIMATIONS
+        ============================================ */
+        @keyframes confettiFly {
+            0%   { opacity: 1; transform: translate(0,0) scale(1) rotate(0deg); }
+            100% { opacity: 0; transform: translate(var(--dx),var(--dy)) scale(0.4) rotate(var(--dr)); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+
+    <!-- TOP BAR -->
+    <header class="top-bar">
+        <div class="top-bar-avatar"><i class="fa-solid fa-user"></i></div>
+        <div class="top-bar-center">
+            <span class="top-bar-title">✦ Zen Garden</span>
+            <span class="top-bar-sub" id="hdr-sub">Bienvenue</span>
+        </div>
+        <div class="top-bar-action"><i class="fa-solid fa-gear"></i></div>
+    </header>
+
+    <!-- VIEWS -->
+    <main id="main"></main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" data-view="dashboard"><i class="fa-solid fa-seedling"></i>Focus</button>
+        <button class="nav-btn" data-view="activities"><i class="fa-solid fa-bolt"></i>Active</button>
+        <button class="nav-btn" data-view="journey"><i class="fa-solid fa-route"></i>Journey</button>
+        <button class="nav-btn" data-view="soul"><i class="fa-solid fa-spa"></i>Soul</button>
+    </nav>
+
+</div>
+
+<!-- Reiki flash overlay -->
+<div id="reiki-flash"></div>
+
+<script>
+/* ============================================
+   QUEST POOL — Banque de quêtes quotidiennes
+============================================ */
+const QUEST_POOL = [
+    { icon:'fa-om',                 label:'Méditer 10 min',                        xp:25, cat:'🧘' },
+    { icon:'fa-glass-water',        label:'Boire 1,5 L d\'eau',                    xp:15, cat:'💧' },
+    { icon:'fa-child-reaching',     label:'S\'étirer 5 min',                       xp:15, cat:'🧘' },
+    { icon:'fa-bed',                label:'Se coucher avant 23h',                  xp:20, cat:'😴' },
+    { icon:'fa-cookie-bite',        label:'Pas de sucre ajouté aujourd\'hui',      xp:30, cat:'🥗' },
+    { icon:'fa-utensils',           label:'Pas de grignotage entre les repas',     xp:25, cat:'🥗' },
+    { icon:'fa-tv',                 label:'Ne pas manger devant la télé',          xp:20, cat:'🥗' },
+    { icon:'fa-bowl-food',          label:'Manger un repas fait maison',           xp:20, cat:'🥗' },
+    { icon:'fa-wind',               label:'Respiration profonde 5 min',            xp:15, cat:'🧘' },
+    { icon:'fa-mobile-screen',      label:'Pas d\'écran 1h avant de dormir',      xp:25, cat:'😴' },
+    { icon:'fa-tree',               label:'Prendre l\'air frais 10 min',           xp:15, cat:'🌿' },
+    { icon:'fa-stairs',             label:'Escaliers plutôt qu\'ascenseur',        xp:10, cat:'🚶' },
+    { icon:'fa-book-open',          label:'Lire 15 min',                           xp:20, cat:'📖' },
+    { icon:'fa-pen-to-square',      label:'Journaling : écrire 3 lignes',          xp:20, cat:'✏️' },
+];
+
+/* Simple seeded RNG basé sur la date — stable toute la journée */
+function seededRand(seed) {
+    let s = seed;
+    return function() {
+        s = (s * 1664525 + 1013904223) & 0xffffffff;
+        return (s >>> 0) / 0xffffffff;
+    };
+}
+
+function pickDailyQuests() {
+    const today = new Date().toDateString();
+    // Seed = somme des codes char de la date (stable & unique par jour)
+    const seed = today.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    const rand = seededRand(seed);
+
+    // Shuffle une copie du pool avec notre RNG seeded
+    const pool = QUEST_POOL.slice();
+    for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(rand() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+
+    // Prendre les 3 premières et leur affecter des IDs
+    return pool.slice(0, 3).map((q, i) => ({ ...q, id: i + 1, done: false }));
+}
+
+/* Retourne la clé de semaine ISO-like pour grouper les activités */
+function getWeekKey(d) {
+    const date = d ? new Date(d) : new Date();
+    const jan1 = new Date(date.getFullYear(), 0, 1);
+    const week = Math.ceil(((date - jan1) / 86400000 + jan1.getDay() + 1) / 7);
+    return `${date.getFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+
+/* ============================================
+   STORE (State + localStorage)
+============================================ */
+const Store = (() => {
+    const today = new Date().toDateString();
+
+    const DEFAULTS = {
+        level: 1, xp: 0, xpMax: 100,
+        streak: 1,
+        lastDate: today,
+        quests: pickDailyQuests(),
+        dailyXP: {},
+        achievements: [],
+        // Nouveaux compteurs pour les badges avancés
+        totalXPEarned: 0,
+        yogaCount: 0,
+        walkCount: 0,
+        workoutCount: 0,
+        reikiMinutes: 0,
+        weekReikiSessions: {},
+        activityLog: {},
+        yogaFlowsCompleted: [],
+        perfectQuestStreak: 0,
+        perfectQuestLastDate: ''
+    };
+
+    function load() {
+        try {
+            const raw = localStorage.getItem('zenGarden_v3');
+            if (raw) {
+                const s = JSON.parse(raw);
+                if (s.lastDate !== today) {
+                    // Calcul du nb de jours écoulés depuis la dernière visite
+                    const last    = new Date(s.lastDate);
+                    const now     = new Date(today);
+                    const diffMs  = now - last;
+                    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+                    if (diffDays === 1) {
+                        // Jour consécutif : streak continue
+                        s.streak = (s.streak || 0) + 1;
+                    } else {
+                        // Jour(s) sauté(s) : streak repart à 1
+                        s.streak = 1;
+                    }
+                    s.quests  = pickDailyQuests();
+                    s.lastDate = today;
+                    // Sauvegarde immédiate pour ne pas rejouer le calcul
+                    localStorage.setItem('zenGarden_v3', JSON.stringify(s));
+                }
+                return s;
+            }
+        } catch(e) {}
+        return JSON.parse(JSON.stringify(DEFAULTS));
+    }
+
+    let state = load();
+
+    function save() { localStorage.setItem('zenGarden_v3', JSON.stringify(state)); }
+
+    function addXP(amount, x, y) {
+        state.xp += amount;
+        if (state.xp >= state.xpMax) {
+            state.level++;
+            state.xp -= state.xpMax;
+            state.xpMax = Math.floor(state.xpMax * 1.5);
+        }
+        if (!state.dailyXP) state.dailyXP = {};
+        state.dailyXP[today] = (state.dailyXP[today] || 0) + amount;
+        if (!state.totalXPEarned) state.totalXPEarned = 0;
+        state.totalXPEarned += amount;
+        save();
+        updateHeader();
+        if (x !== undefined) spawnBubble(amount, x, y);
+        document.dispatchEvent(new CustomEvent('stateUpdate'));
+    }
+
+    function logActivity(type, meta) {
+        // type: 'walk' | 'yoga' | 'workout' | 'reiki'
+        if (!state.activityLog)         state.activityLog = {};
+        if (!state.activityLog[today])  state.activityLog[today] = {};
+        state.activityLog[today][type] = true;
+
+        const wk = getWeekKey();
+        if (type === 'yoga') {
+            state.yogaCount = (state.yogaCount || 0) + 1;
+            if (meta?.flowId && !state.yogaFlowsCompleted) state.yogaFlowsCompleted = [];
+            if (meta?.flowId && !state.yogaFlowsCompleted.includes(meta.flowId))
+                state.yogaFlowsCompleted.push(meta.flowId);
+        }
+        if (type === 'walk')    state.walkCount    = (state.walkCount    || 0) + 1;
+        if (type === 'workout') state.workoutCount = (state.workoutCount || 0) + 1;
+        if (type === 'reiki') {
+            if (!state.weekReikiSessions) state.weekReikiSessions = {};
+            state.weekReikiSessions[wk] = (state.weekReikiSessions[wk] || 0) + 1;
+            state.reikiMinutes = (state.reikiMinutes || 0) + (meta?.minutes || 45);
+        }
+        save();
+    }
+
+    function tickPerfectQuestStreak() {
+        if (!state.quests.every(q => q.done)) return;
+        if (state.perfectQuestLastDate === today) return;
+        if (state.perfectQuestLastDate) {
+            const last  = new Date(state.perfectQuestLastDate);
+            const now   = new Date(today);
+            const diff  = Math.round((now - last) / (1000 * 60 * 60 * 24));
+            state.perfectQuestStreak = diff === 1 ? (state.perfectQuestStreak || 0) + 1 : 1;
+        } else {
+            state.perfectQuestStreak = 1;
+        }
+        state.perfectQuestLastDate = today;
+        save();
+    }
+
+    function unlockBadge(id) {
+        if (!state.achievements) state.achievements = [];
+        if (state.achievements.find(a => a.id === id)) return; // déjà débloqué
+        state.achievements.push({ id, date: today });
+        save();
+        document.dispatchEvent(new CustomEvent('stateUpdate'));
+    }
+
+    function completeQuest(id, x, y) {
+        const q = state.quests.find(q => q.id === id);
+        if (!q || q.done) return;
+        q.done = true;
+        addXP(q.xp, x, y);
+    }
+
+    function reset() {
+        state = JSON.parse(JSON.stringify(DEFAULTS));
+        save();
+        updateHeader();
+        document.dispatchEvent(new CustomEvent('stateUpdate'));
+    }
+
+    function updateHeader() {
+        const el = document.getElementById('hdr-sub');
+        if (el) el.textContent = `Lvl ${state.level}  ·  ${state.xp} XP`;
+    }
+
+    function spawnBubble(amount, x, y) {
+        const el = document.createElement('div');
+        el.className = 'xp-bubble';
+        el.textContent = `+${amount} XP`;
+        el.style.left = x + 'px';
+        el.style.top  = y + 'px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1300);
+    }
+
+    return { get state() { return state; }, addXP, completeQuest, reset, updateHeader, unlockBadge, logActivity, tickPerfectQuestStreak };
+})();
+
+
+/* ============================================
+   ROUTER / APP CONTROLLER
+============================================ */
+const App = (() => {
+    const views = {};
+    let current = null;
+    let walkInterval = null;
+    let reikiInterval = null;
+
+    function register(name, mod) { views[name] = mod; }
+
+    function navigate(name) {
+        // Stop any running trackers when leaving
+        if (current && current.teardown) current.teardown();
+
+        // Update nav buttons
+        document.querySelectorAll('.nav-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.view === name);
+        });
+        // Only show bottom nav buttons for main views
+        const isMain = ['dashboard','activities','journey','soul'].includes(name);
+        document.querySelector('.bottom-nav').style.display = isMain ? 'flex' : 'flex';
+
+        const main = document.getElementById('main');
+        main.innerHTML = '';
+
+        const view = views[name];
+        if (!view) { main.innerHTML = '<div class="card"><p>Vue introuvable.</p></div>'; return; }
+
+        current = view;
+        const el = document.createElement('div');
+        el.className = 'view-enter';
+        el.innerHTML = view.render();
+        main.appendChild(el);
+        if (view.mount) view.mount();
+        Store.updateHeader();
+    }
+
+    function init() {
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => navigate(btn.dataset.view));
+        });
+        navigate('dashboard');
+    }
+
+    return { register, navigate, init };
+})();
+
+
+/* ============================================
+   VIEW: DASHBOARD
+============================================ */
+App.register('dashboard', {
+    render() {
+        const s = Store.state;
+        const pct = Math.min((s.xp / s.xpMax) * 100, 100);
+        const completedCount = s.quests.filter(q=>q.done).length;
+        return `
+        <div class="greeting">
+            <h2>Bonjour 👋</h2>
+            <p>Prêt pour une nouvelle journée consciente&nbsp;?</p>
+        </div>
+
+        <!-- XP CARD -->
+        <div class="card xp-card">
+            <div class="card-header">
+                <h3>Niveau ${s.level}</h3>
+                <span class="level-badge">⬆ ${s.xpMax - s.xp} XP jusqu'au prochain</span>
+            </div>
+            <div class="progress-wrap">
+                <div class="progress-bar" id="xp-bar" style="width:0%"></div>
+            </div>
+            <div class="xp-nums"><span>${s.xp} XP</span><span>${s.xpMax} XP</span></div>
+        </div>
+
+        <!-- STREAK -->
+        <div class="card streak-card">
+            <div class="streak-info">
+                <h3>${s.streak} jour${s.streak>1?'s':''} 🔥</h3>
+                <p>Série consécutive active !</p>
+            </div>
+            <div class="flame">🔥</div>
+        </div>
+
+        <!-- QUESTS -->
+        <div class="card">
+            <div class="info-row">
+                <span class="section-title">Quêtes du jour</span>
+                <span class="badge badge-secondary">${completedCount}/${s.quests.length}</span>
+            </div>
+            ${s.quests.map(q => `
+            <div class="quest-item ${q.done?'done':''}" id="qi-${q.id}">
+                <div class="quest-icon-wrap" style="color:var(--${q.done?'text-light':'primary'})">
+                    <i class="fa-solid ${q.icon}"></i>
+                </div>
+                <div class="quest-text">
+                    <h4>${q.label}</h4>
+                    <span class="badge badge-secondary">+${q.xp} XP</span>
+                </div>
+                <button class="quest-check ${q.done?'done':''}" data-qid="${q.id}" ${q.done?'disabled':''}>
+                    <i class="fa-solid fa-check"></i>
+                </button>
+            </div>`).join('')}
+        </div>
+
+        <!-- SHORTCUT CARDS -->
+        <div class="section-title" style="margin-top:4px">Accès rapide</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px">
+            <div class="card" style="padding:16px;text-align:center;cursor:pointer;margin-bottom:0" id="go-walk">
+                <div style="font-size:1.8rem;margin-bottom:6px">🚶</div>
+                <div style="font-family:var(--font-h);font-weight:700;font-size:0.9rem">Zen Walk</div>
+                <div style="font-size:0.72rem;color:var(--text-light);margin-top:2px">Objectif 20 min</div>
+            </div>
+            <div class="card" style="padding:16px;text-align:center;cursor:pointer;margin-bottom:0" id="go-reiki">
+                <div style="font-size:1.8rem;margin-bottom:6px">🙌</div>
+                <div style="font-family:var(--font-h);font-weight:700;font-size:0.9rem">Session Reiki</div>
+                <div style="font-size:0.72rem;color:var(--text-light);margin-top:2px">Timer 3 min</div>
+            </div>
+        </div>
+        `;
+    },
+    mount() {
+        // Animate XP bar
+        const s = Store.state;
+        setTimeout(() => {
+            const bar = document.getElementById('xp-bar');
+            if (bar) bar.style.width = Math.min((s.xp/s.xpMax)*100,100) + '%';
+        }, 80);
+
+        // Quest click handlers
+        document.querySelectorAll('.quest-check').forEach(btn => {
+            btn.addEventListener('click', e => {
+                const id = parseInt(btn.dataset.qid);
+                const r = btn.getBoundingClientRect();
+                Store.completeQuest(id, r.left + r.width/2, r.top);
+                Store.unlockBadge('first_quest');
+                Store.tickPerfectQuestStreak();
+                checkAutoBadges();
+                confetti(r.left + r.width/2, r.top + r.height/2);
+                setTimeout(() => App.navigate('dashboard'), 600);
+            });
+        });
+
+        document.getElementById('go-walk')?.addEventListener('click', () => App.navigate('walkTracker'));
+        document.getElementById('go-reiki')?.addEventListener('click', () => App.navigate('reikiTimer'));
+    }
+});
+
+
+/* ============================================
+   VIEW: ACTIVITIES
+============================================ */
+App.register('activities', {
+    render() {
+        return `
+        <div style="margin-bottom:20px">
+            <h2 style="font-family:var(--font-h);font-size:1.4rem;font-weight:800;letter-spacing:-0.03em">Explorez ✨</h2>
+            <p style="color:var(--text-light);font-size:0.85rem;margin-top:2px">Choisissez votre pratique</p>
+        </div>
+
+        <div class="act-grid">
+            <div class="act-card rec" data-goto="yoga">
+                <div class="act-ico act-ico-yoga"><i class="fa-solid fa-peace"></i></div>
+                <div class="act-name">Yoga Vinyasa</div>
+                <div class="act-meta">10 min · <span style="color:var(--primary);font-weight:700">+50 XP</span></div>
+                <div class="intensity"><div class="dot on"></div><div class="dot on"></div><div class="dot"></div></div>
+            </div>
+
+            <div class="act-card" data-goto="walkTracker">
+                <div class="act-ico act-ico-walk"><i class="fa-solid fa-person-walking"></i></div>
+                <div class="act-name">Zen Walk</div>
+                <div class="act-meta">20 min · Flow State</div>
+                <div class="intensity"><div class="dot on"></div><div class="dot"></div><div class="dot"></div></div>
+            </div>
+
+            <div class="act-card" data-goto="workout">
+                <div class="act-ico act-ico-workout"><i class="fa-solid fa-dumbbell"></i></div>
+                <div class="act-name">Workout</div>
+                <div class="act-meta">30–60 min · <span style="color:var(--secondary);font-weight:700">+100 XP</span></div>
+                <div class="intensity"><div class="dot on"></div><div class="dot on"></div><div class="dot on"></div></div>
+            </div>
+
+            <div class="act-card" data-goto="reikiTimer">
+                <div class="act-ico act-ico-reiki"><i class="fa-solid fa-hands-holding-circle"></i></div>
+                <div class="act-name">Session Reiki</div>
+                <div class="act-meta">Timer · <span style="color:var(--tertiary);font-weight:700">Énergie</span></div>
+                <div class="intensity"><div class="dot on"></div><div class="dot on"></div><div class="dot"></div></div>
+            </div>
+        </div>
+        `;
+    },
+    mount() {
+        document.querySelectorAll('.act-card').forEach(c => {
+            c.addEventListener('click', () => {
+                const target = c.dataset.goto;
+                if (['yoga', 'walkTracker', 'reikiTimer', 'workout'].includes(target)) {
+                    App.navigate(target);
+                } else {
+                    showToast('🧘 Fonctionnalité bientôt disponible !');
+                }
+            });
+        });
+    }
+});
+
+
+/* ============================================
+   VIEW: YOGA — Flow Selector + Timer
+============================================ */
+const YOGA_FLOWS = {
+    stretching: {
+        name: 'Étirement',
+        emoji: '🌿',
+        color: '#388E3C',
+        colorLight: 'rgba(56,142,60,0.1)',
+        desc: 'Souplesse & relâchement en profondeur',
+        poses: [
+            { name: 'Posture de l\'Enfant', sanskrit: 'Balasana', icon: '🧘', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_enfant_3d_zenith_1776256510217.png' },
+            { name: 'Chat – Vache', sanskrit: 'Marjaryasana-Bitilasana', icon: '🐱', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_chatvache_3d_zenith_1776256526526.png' },
+            { name: 'Torsion Assise', sanskrit: 'Ardha Matsyendrasana', icon: '🔄', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_torsion_3d_zenith_1776256540382.png' },
+            { name: 'Pigeon', sanskrit: 'Eka Pada Rajakapotasana', icon: '🐦', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_pigeon_3d_zenith_1776256552699.png' },
+            { name: 'Papillon', sanskrit: 'Baddha Konasana', icon: '🦋', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_papillon_3d_zenith_1776256568474.png' },
+        ]
+    },
+    energy: {
+        name: 'Énergie',
+        emoji: '☀️',
+        color: '#FF9800',
+        colorLight: 'rgba(255,152,0,0.1)',
+        desc: 'Activation & vitalité matinale',
+        poses: [
+            { name: 'Salutation au Soleil', sanskrit: 'Surya Namaskar', icon: '🌞', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_salutation_3d_zenith_1776256586080.png' },
+            { name: 'Guerrier I', sanskrit: 'Virabhadrasana I', icon: '⚔️', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_guerrier1_3d_zenith_1776256597937.png' },
+            { name: 'Guerrier II', sanskrit: 'Virabhadrasana II', icon: '💪', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_guerrier2_3d_zenith_1776256614285.png' },
+            { name: 'Chaise', sanskrit: 'Utkatasana', icon: '🪑', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_chaise_3d_zenith_1776256629498.png' },
+            { name: 'Arbre', sanskrit: 'Vrksasana', icon: '🌳', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_arbre_3d_zenith_1776256644022.png' },
+        ]
+    },
+    relaxation: {
+        name: 'Relaxation',
+        emoji: '🌙',
+        color: '#9C27B0',
+        colorLight: 'rgba(156,39,176,0.1)',
+        desc: 'Apaisement & lâcher prise',
+        poses: [
+            { name: 'Torsion Allongée',   sanskrit: 'Supta Matsyendrasana', icon: '🔄', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_torsion_allongee_zenith_final_1776277116745.png' },
+            { name: 'Jambes au Mur',       sanskrit: 'Viparita Karani',      icon: '🥾', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_jambes_mur_3d_zenith_1776256676298.png' },
+            { name: 'Posture de l\'Enfant', sanskrit: 'Balasana',             icon: '🌙', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_enfant_3d_zenith_1776256510217.png' },
+            { name: 'Cadavre',             sanskrit: 'Savasana',             icon: '✨', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_savasana_zenith_1776276460500.png' },
+            { name: 'Respiration 4-7-8',   sanskrit: 'Pranayama',            icon: '💨', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_pranayama_zenith_1776276475771.png' },
+        ]
+    },
+    mobility: {
+        name: 'Mobilité',
+        emoji: '🔄',
+        color: '#00897B',
+        colorLight: 'rgba(0,137,123,0.1)',
+        desc: 'Articulations & amplitude de mouvement',
+        poses: [
+            { name: 'Roulement du Cou',     sanskrit: 'Greeva Sanchalana',   icon: '💆', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_roulement_cou_zenith_1776276498812.png' },
+            { name: 'Ouverture de Hanches', sanskrit: 'Eka Pada Uttanasana', icon: '🨗', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_ouverture_hanches_zenith_1776276510630.png' },
+            { name: 'Aiguille Enfilée',    sanskrit: 'Parivrtta Balasana',  icon: '🧵', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_aiguille_enfilee_zenith_1776276526292.png' },
+            { name: 'Lézard',               sanskrit: 'Anjaneyasana',        icon: '🦎', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_lezard_zenith_1776277089627.png' },
+            { name: 'Squat Profond',        sanskrit: 'Malasana',            icon: '🥼', img: 'C:/Users/Utilisateur/.gemini/antigravity/brain/eae9a0c6-42f6-4fe9-ac00-a5d19c1d2c88/yoga_malasana_zenith_1776277103175.png' },
+        ]
+    }
+};
+
+App.register('yoga', {
+    _selectedFlow: null,
+    _interval: null,
+    _remaining: 600, // 10 min
+    _phase: 0,       // current pose index (0–4)
+    _running: false,
+    _audioCtx: null,
+    PHASE_DURATION: 120, // 2 min per pose
+
+    teardown() {
+        clearInterval(this._interval);
+        this._running = false;
+        this._remaining = 600;
+        this._phase = 0;
+        this._selectedFlow = null;
+    },
+
+    render() {
+        return `
+        <button class="back-btn" id="yoga-back"><i class="fa-solid fa-arrow-left"></i> Retour</button>
+
+        <!-- FLOW SELECTOR -->
+        <div id="yoga-selector">
+            <div style="text-align:center;margin-bottom:24px">
+                <div style="font-size:2.5rem;margin-bottom:6px">🧘</div>
+                <h2 style="font-family:var(--font-h);font-weight:800;font-size:1.45rem;letter-spacing:-0.03em">Yoga Vinyasa</h2>
+                <p style="color:var(--text-light);font-size:0.85rem;margin-top:4px">Choisissez votre flow du moment</p>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:14px">
+                ${Object.entries(YOGA_FLOWS).map(([key, flow]) => `
+                <div class="yoga-flow-card" data-flow="${key}" style="--flow-color:${flow.color};--flow-bg:${flow.colorLight}">
+                    <div class="yoga-flow-left">
+                        <div class="yoga-flow-icon">${flow.emoji}</div>
+                        <div>
+                            <div class="yoga-flow-name">${flow.name}</div>
+                            <div class="yoga-flow-desc">${flow.desc}</div>
+                        </div>
+                    </div>
+                    <div class="yoga-flow-poses">
+                        ${flow.poses.slice(0,3).map(p => `<span>${p.icon}</span>`).join('')}<span style="color:var(--text-light);font-size:0.7rem">+${flow.poses.length - 3}</span>
+                    </div>
+                </div>
+                `).join('')}
+            </div>
+        </div>
+
+        <!-- TIMER (hidden until flow selected) -->
+        <div id="yoga-timer" style="display:none">
+            <div style="text-align:center;margin-bottom:12px">
+                <div id="yoga-flow-label" style="font-family:var(--font-h);font-weight:800;font-size:1.3rem"></div>
+                <p style="color:var(--text-light);font-size:0.82rem;margin-top:2px">10 minutes · 5 postures × 2 min</p>
+            </div>
+
+            <!-- RING -->
+            <div class="ring-container" style="margin:16px auto 20px">
+                <svg class="ring-svg" viewBox="0 0 200 200">
+                    <circle class="ring-bg" cx="100" cy="100" r="88"/>
+                    <circle class="ring-fill" id="yoga-ring" cx="100" cy="100" r="88" style="stroke:var(--primary)"/>
+                </svg>
+                <div class="ring-center">
+                    <div class="timer-main" id="yoga-time">10:00</div>
+                    <div class="timer-sub" id="yoga-phase-num">Posture 1/5</div>
+                </div>
+            </div>
+
+            <!-- POSE CARD -->
+            <div id="yoga-pose-card" class="card" style="text-align:center;margin-bottom:20px;border-left:4px solid var(--primary);overflow:hidden;padding:0">
+                <div id="yoga-img-wrap" style="width:100%;height:180px;background:#f8fafa;display:flex;align-items:center;justify-content:center;position:relative">
+                    <img id="yoga-pose-img" src="" style="max-width:100%;max-height:100%;object-fit:contain;transition:opacity 0.3s">
+                </div>
+                <div style="padding:16px">
+                    <div id="yoga-pose-name" style="font-family:var(--font-h);font-weight:700;font-size:1.1rem;margin-bottom:4px">Prêt·e ?</div>
+                    <div id="yoga-pose-sanskrit" style="font-size:0.78rem;color:var(--text-light);font-style:italic">Appuyez sur Play pour démarrer</div>
+                </div>
+            </div>
+
+            <!-- PHASE DOTS -->
+            <div id="yoga-phase-dots" style="display:flex;justify-content:center;gap:8px;margin-bottom:24px">
+                ${[0,1,2,3,4].map(i => `<div class="yoga-dot" id="yd-${i}"></div>`).join('')}
+            </div>
+
+            <!-- CONTROLS -->
+            <div class="controls">
+                <button class="btn-icon" id="yoga-play" style="background:var(--primary);color:white;box-shadow:0 4px 16px rgba(0,137,123,0.35);width:64px;height:64px;font-size:1.4rem">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+                <button class="btn-icon" id="yoga-stop" style="background:#E0F2F1;color:var(--primary)">
+                    <i class="fa-solid fa-stop"></i>
+                </button>
+            </div>
+        </div>
+        `;
+    },
+
+    mount() {
+        document.getElementById('yoga-back').addEventListener('click', () => {
+            this.teardown();
+            App.navigate('activities');
+        });
+
+        // Flow selection
+        document.querySelectorAll('.yoga-flow-card').forEach(card => {
+            card.addEventListener('click', () => {
+                this._selectedFlow = card.dataset.flow;
+                this._remaining = 600;
+                this._phase = 0;
+                this._running = false;
+
+                // Switch to timer view
+                document.getElementById('yoga-selector').style.display = 'none';
+                document.getElementById('yoga-timer').style.display = 'block';
+
+                const flow = YOGA_FLOWS[this._selectedFlow];
+                document.getElementById('yoga-flow-label').textContent = `${flow.emoji} Flow ${flow.name}`;
+                document.getElementById('yoga-flow-label').style.color = flow.color;
+                document.getElementById('yoga-ring').style.stroke = flow.color;
+
+                this.showPose(0, false);
+                this.updateTimerUI();
+                this.updateDots();
+            });
+        });
+
+        // Play/Pause
+        const btnPlay = document.getElementById('yoga-play');
+        btnPlay?.addEventListener('click', () => {
+            if (!this._running) {
+                if (!this._audioCtx) {
+                    try { this._audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+                }
+                this.startTimer();
+                btnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            } else {
+                this.pauseTimer();
+                btnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+            }
+        });
+
+        // Stop
+        document.getElementById('yoga-stop')?.addEventListener('click', () => {
+            this.pauseTimer();
+            const elapsed = 600 - this._remaining;
+            if (elapsed > 30) {
+                const earnedXp = Math.round((elapsed / 600) * 50);
+                Store.addXP(earnedXp, window.innerWidth / 2, 300);
+                showToast(`🧘 Session arrêtée · +${earnedXp} XP`);
+            }
+            btnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+            this._remaining = 600; this._phase = 0;
+            this.updateTimerUI(); this.updateDots();
+            if (this._selectedFlow) this.showPose(0, false);
+        });
+    },
+
+    startTimer() {
+        this._running = true;
+        this._interval = setInterval(() => {
+            if (this._remaining <= 0) {
+                this.pauseTimer();
+                document.getElementById('yoga-play').innerHTML = '<i class="fa-solid fa-play"></i>';
+                Store.addXP(50, window.innerWidth / 2, 300);
+                Store.unlockBadge('yogi');
+                Store.logActivity('yoga', { flowId: this._selectedFlow });
+                checkAutoBadges();
+                confetti(window.innerWidth / 2, 300);
+                showToast('🎉 Flow terminé ! Magnifique pratique · +50 XP');
+                return;
+            }
+
+            this._remaining--;
+            const elapsed = 600 - this._remaining;
+            const newPhase = Math.min(Math.floor(elapsed / this.PHASE_DURATION), 4);
+
+            if (newPhase !== this._phase) {
+                this._phase = newPhase;
+                this.showPose(newPhase, true);
+                this.updateDots();
+            }
+
+            this.updateTimerUI();
+        }, 1000);
+    },
+
+    pauseTimer() {
+        clearInterval(this._interval);
+        this._running = false;
+    },
+
+    showPose(index, withSound) {
+        if (!this._selectedFlow) return;
+        const flow = YOGA_FLOWS[this._selectedFlow];
+        const pose = flow.poses[index];
+        if (!pose) return;
+
+        const imgEl      = document.getElementById('yoga-pose-img');
+        const imgWrap    = document.getElementById('yoga-img-wrap');
+        const name       = document.getElementById('yoga-pose-name');
+        const skt        = document.getElementById('yoga-pose-sanskrit');
+        const phaseEl    = document.getElementById('yoga-phase-num');
+
+        if (imgEl && imgWrap) {
+            imgEl.style.opacity = '0';
+            setTimeout(() => {
+                if (pose.img) {
+                    // Image réelle disponible
+                    imgEl.style.display = 'block';
+                    imgWrap.style.background = '#f8fafa';
+                    imgWrap.querySelector('.yoga-placeholder')?.remove();
+                    imgEl.src = pose.img;
+                    imgEl.style.opacity = '1';
+                } else {
+                    // Placeholder élégant avec l'emoji
+                    imgEl.style.display = 'none';
+                    imgWrap.style.background = 'linear-gradient(135deg, ' + flow.colorLight + ', rgba(255,255,255,0.4))';
+                    let ph = imgWrap.querySelector('.yoga-placeholder');
+                    if (!ph) {
+                        ph = document.createElement('div');
+                        ph.className = 'yoga-placeholder';
+                        ph.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;opacity:0;transition:opacity 0.3s';
+                        ph.innerHTML = `<div style="font-size:4rem">${pose.icon}</div><div style="font-size:0.72rem;color:var(--text-light);font-weight:600">Illustration bientôt disponible</div>`;
+                        imgWrap.appendChild(ph);
+                    }
+                    setTimeout(() => ph.style.opacity = '1', 50);
+                }
+            }, 150);
+        }
+
+        if (name)    name.textContent    = pose.name;
+        if (skt)     skt.textContent     = pose.sanskrit;
+        if (phaseEl) phaseEl.textContent = `Posture ${index + 1}/5`;
+
+        // Animate card
+        const card = document.getElementById('yoga-pose-card');
+        if (card) {
+            card.style.borderLeftColor = flow.color;
+            card.style.animation = 'none';
+            void card.offsetWidth;
+            card.style.animation = 'viewSlideIn 0.4s forwards';
+        }
+
+        if (withSound) this.playChime();
+    },
+
+    updateTimerUI() {
+        const m = Math.floor(this._remaining / 60).toString().padStart(2, '0');
+        const s = (this._remaining % 60).toString().padStart(2, '0');
+        const timeEl = document.getElementById('yoga-time');
+        if (timeEl) timeEl.textContent = `${m}:${s}`;
+
+        const ring = document.getElementById('yoga-ring');
+        if (ring) {
+            const pct = 1 - (this._remaining / 600);
+            ring.style.strokeDashoffset = 628 - 628 * pct;
+        }
+    },
+
+    updateDots() {
+        for (let i = 0; i < 5; i++) {
+            const dot = document.getElementById(`yd-${i}`);
+            if (!dot) continue;
+            dot.className = 'yoga-dot' + (i <= this._phase ? ' yoga-dot-active' : '');
+            if (i === this._phase) dot.classList.add('yoga-dot-current');
+        }
+    },
+
+    playChime() {
+        if (!this._audioCtx) return;
+        try {
+            [528, 660].forEach((freq, i) => {
+                const osc  = this._audioCtx.createOscillator();
+                const gain = this._audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0, this._audioCtx.currentTime + i * 0.06);
+                gain.gain.linearRampToValueAtTime(0.25, this._audioCtx.currentTime + i * 0.06 + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, this._audioCtx.currentTime + 2.5);
+                osc.connect(gain);
+                gain.connect(this._audioCtx.destination);
+                osc.start(this._audioCtx.currentTime + i * 0.06);
+                osc.stop(this._audioCtx.currentTime + 2.5);
+            });
+        } catch(e) {}
+    }
+});
+
+
+/* ============================================
+   VIEW: WORKOUT LOGGER
+============================================ */
+App.register('workout', {
+    render() {
+        return `
+        <button class="back-btn" id="wo-back"><i class="fa-solid fa-arrow-left"></i> Retour</button>
+
+        <div style="text-align:center;margin-bottom:28px">
+            <div style="font-size:3rem;margin-bottom:8px">💪</div>
+            <h2 style="font-family:var(--font-h);font-weight:800;font-size:1.45rem;letter-spacing:-0.03em">Workout</h2>
+            <p style="color:var(--text-light);font-size:0.85rem;margin-top:4px">Combien de temps vous êtes-vous entraîné·e ?</p>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:32px">
+
+            <div class="wo-option" data-min="30" data-xp="60">
+                <div class="wo-option-left">
+                    <div class="wo-option-icon" style="background:rgba(255,152,0,0.12);color:var(--secondary)"><i class="fa-solid fa-stopwatch"></i></div>
+                    <div>
+                        <div class="wo-option-label">30 minutes</div>
+                        <div class="wo-option-sub">Séance express · Intensité modérée</div>
+                    </div>
+                </div>
+                <div class="wo-option-xp">+60 XP</div>
+            </div>
+
+            <div class="wo-option" data-min="45" data-xp="90">
+                <div class="wo-option-left">
+                    <div class="wo-option-icon" style="background:rgba(255,152,0,0.18);color:var(--secondary)"><i class="fa-solid fa-fire"></i></div>
+                    <div>
+                        <div class="wo-option-label">45 minutes</div>
+                        <div class="wo-option-sub">Séance standard · Bonne intensité</div>
+                    </div>
+                </div>
+                <div class="wo-option-xp">+90 XP</div>
+            </div>
+
+            <div class="wo-option" data-min="60" data-xp="120">
+                <div class="wo-option-left">
+                    <div class="wo-option-icon" style="background:rgba(239,83,80,0.12);color:var(--danger)"><i class="fa-solid fa-bolt"></i></div>
+                    <div>
+                        <div class="wo-option-label">60 minutes</div>
+                        <div class="wo-option-sub">Séance complète · Haute intensité</div>
+                    </div>
+                </div>
+                <div class="wo-option-xp">+120 XP</div>
+            </div>
+
+            <div class="wo-option" data-min="90" data-xp="160">
+                <div class="wo-option-left">
+                    <div class="wo-option-icon" style="background:rgba(156,39,176,0.12);color:var(--tertiary)"><i class="fa-solid fa-trophy"></i></div>
+                    <div>
+                        <div class="wo-option-label">+ de 60 minutes</div>
+                        <div class="wo-option-sub">Beast mode · Performance maximale</div>
+                    </div>
+                </div>
+                <div class="wo-option-xp">+160 XP</div>
+            </div>
+
+        </div>
+
+        <!-- Confirmation overlay (hidden by default) -->
+        <div id="wo-confirm" style="display:none;text-align:center;animation:viewSlideIn 0.3s forwards">
+            <div style="font-size:4rem;margin-bottom:12px" id="wo-confetti-ico">🎉</div>
+            <h3 style="font-family:var(--font-h);font-size:1.3rem;font-weight:800;margin-bottom:6px" id="wo-confirm-title">Bravo !</h3>
+            <p style="color:var(--text-light);margin-bottom:24px" id="wo-confirm-sub">Séance validée !</p>
+            <button class="btn btn-primary" id="wo-done">Retour au tableau de bord</button>
+        </div>
+        `;
+    },
+    mount() {
+        document.getElementById('wo-back').addEventListener('click', () => App.navigate('activities'));
+
+        document.querySelectorAll('.wo-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                const min = parseInt(opt.dataset.min);
+                const xp  = parseInt(opt.dataset.xp);
+                const label = opt.querySelector('.wo-option-label').textContent;
+
+                // Hide options, show confirmation
+                document.querySelectorAll('.wo-option').forEach(o => o.style.display = 'none');
+                document.querySelector('[style*="text-align:center;margin-bottom:28px"]').style.display = 'none';
+                const confirm = document.getElementById('wo-confirm');
+                confirm.style.display = 'block';
+                document.getElementById('wo-confirm-title').textContent = `${label} validées ! 💪`;
+                document.getElementById('wo-confirm-sub').textContent = `Vous gagnez ${xp} XP pour cette séance.`;
+
+                // Award XP with confetti
+                Store.addXP(xp, window.innerWidth / 2, 300);
+                Store.unlockBadge('warrior');
+                Store.logActivity('workout');
+                checkAutoBadges();
+                confetti(window.innerWidth / 2, 300);
+
+                document.getElementById('wo-done').addEventListener('click', () => App.navigate('dashboard'));
+            });
+        });
+    }
+});
+
+
+/* ============================================
+   VIEW: WALK TRACKER
+============================================ */
+App.register('walkTracker', {
+    _interval: null,
+    _secs: 0,
+    _running: false,
+    _flow: 1,
+    TARGET: 20 * 60,   // 20 minutes
+    MILESTONES: [5, 10, 15, 20],
+
+    teardown() {
+        clearInterval(this._interval);
+        this._running = false;
+        this._secs = 0;
+        this._flow = 1;
+    },
+
+    render() {
+        return `
+        <button class="back-btn" id="wk-back"><i class="fa-solid fa-arrow-left"></i> Retour</button>
+        <div class="tracker-wrap">
+            <div style="text-align:center;margin-bottom:4px">
+                <h2 style="font-family:var(--font-h);font-weight:800;font-size:1.4rem">🚶 Zen Walk</h2>
+                <p style="color:var(--text-light);font-size:0.82rem">Objectif : 20 minutes</p>
+            </div>
+
+            <!-- RING -->
+            <div class="ring-container">
+                <svg class="ring-svg" viewBox="0 0 200 200">
+                    <circle class="ring-bg" cx="100" cy="100" r="88"/>
+                    <circle class="ring-fill" id="wk-ring" cx="100" cy="100" r="88"/>
+                </svg>
+                <div class="ring-center">
+                    <div class="timer-main" id="wk-time">00:00</div>
+                    <div class="timer-sub">/ 20:00</div>
+                </div>
+            </div>
+
+            <!-- FLOW STATE -->
+            <div class="flow-pill" id="flow-pill">
+                <i class="fa-solid fa-bolt"></i>
+                <span id="flow-txt">Flow State · x1</span>
+            </div>
+
+            <!-- MILESTONES -->
+            <div class="milestones">
+                ${this.MILESTONES.map(m=>`<div class="milestone" id="ms-${m}">🏅 ${m} min</div>`).join('')}
+            </div>
+
+            <!-- CONTROLS -->
+            <div class="controls">
+                <button class="btn-icon" id="wk-play" style="background:var(--primary);color:white;box-shadow:0 4px 16px rgba(0,137,123,0.35);font-size:1.4rem;width:64px;height:64px">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+                <button class="btn-icon" id="wk-stop" style="background:#FFEBEE;color:var(--danger)">
+                    <i class="fa-solid fa-stop"></i>
+                </button>
+            </div>
+        </div>
+        `;
+    },
+
+    mount() {
+        this._secs = 0; this._running = false; this._flow = 1;
+        const btnPlay = document.getElementById('wk-play');
+        const btnStop = document.getElementById('wk-stop');
+
+        document.getElementById('wk-back').addEventListener('click', () => {
+            this.teardown();
+            App.navigate('activities');
+        });
+
+        btnPlay.addEventListener('click', () => {
+            if (!this._running) {
+                this.start();
+                btnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            } else {
+                this.pause();
+                btnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+            }
+        });
+
+        btnStop.addEventListener('click', () => {
+            if (this._secs > 0) {
+                showToast(`⏹ Marche arrêtée · ${Math.floor(this._secs/60)} min parcourues`);
+                Store.addXP(Math.floor(this._secs/60) * 3);
+            }
+            this.teardown();
+            this.updateUI();
+            btnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+        });
+    },
+
+    start() {
+        this._running = true;
+        this._interval = setInterval(() => {
+            this._secs++;
+            // XP every minute
+            if (this._secs % 60 === 0) {
+                const gained = 5 * this._flow;
+                Store.addXP(gained, window.innerWidth/2, 200);
+            }
+            // Flow state at 5 min
+            if (this._secs === 5*60) {
+                this._flow = 2;
+                const pill = document.getElementById('flow-pill');
+                const txt  = document.getElementById('flow-txt');
+                if (pill) pill.classList.add('active');
+                if (txt)  txt.textContent = 'Flow State · x2 🔥';
+                showToast('⚡ Flow State activé ! XP x2');
+                Store.unlockBadge('flow_rider');
+            }
+            this.updateUI();
+        }, 1000);
+    },
+
+    pause() {
+        clearInterval(this._interval);
+        this._running = false;
+    },
+
+    updateUI() {
+        const m = Math.floor(this._secs/60).toString().padStart(2,'0');
+        const s = (this._secs % 60).toString().padStart(2,'0');
+        const timeEl = document.getElementById('wk-time');
+        if (timeEl) timeEl.textContent = `${m}:${s}`;
+
+        // Ring
+        const ring = document.getElementById('wk-ring');
+        if (ring) {
+            const pct = Math.min(this._secs / this.TARGET, 1);
+            ring.style.strokeDashoffset = 628 - (628 * pct);
+        }
+
+        // Milestones
+        this.MILESTONES.forEach(ms => {
+            const el = document.getElementById(`ms-${ms}`);
+            if (el && this._secs >= ms*60) el.classList.add('reached');
+        });
+
+        // Done!
+        if (this._secs >= this.TARGET && this._running) {
+            this.pause();
+            showToast('🎉 Objectif 20 min atteint ! Bravo !');
+            confetti(window.innerWidth/2, 300);
+            Store.addXP(50, window.innerWidth/2, 300);
+            Store.unlockBadge('zen_walk');
+            Store.logActivity('walk');
+            checkAutoBadges();
+        }
+    }
+});
+
+
+/* ============================================
+   VIEW: REIKI TIMER (45 min countdown, bowl every 3 min)
+============================================ */
+App.register('reikiTimer', {
+    _interval: null,
+    TOTAL: 45 * 60,      // 45 minutes total (countdown)
+    SUB_DURATION: 180,   // 3 minutes sub-timer
+    _remaining: 45 * 60, // counts DOWN
+    _sub: 180,           // sub-timer counts DOWN
+    _running: false,
+    _sessionXP: 0,
+    _audioCtx: null,
+
+    teardown() {
+        clearInterval(this._interval);
+        this._running = false;
+        this._remaining = this.TOTAL;
+        this._sub = this.SUB_DURATION;
+        this._sessionXP = 0;
+    },
+
+    render() {
+        return `
+        <div id="reiki-flash" style="position:fixed;inset:0;background:transparent;pointer-events:none;z-index:9000;transition:background 0.3s"></div>
+        <button class="back-btn" id="rk-back"><i class="fa-solid fa-arrow-left"></i> Retour</button>
+        <div class="reiki-wrap">
+
+            <div style="text-align:center;margin-bottom:4px">
+                <h2 style="font-family:var(--font-h);font-weight:800;font-size:1.4rem">🙌 Session Reiki</h2>
+                <p style="color:var(--text-light);font-size:0.82rem">45 minutes · Bol tibétain toutes les 3 min</p>
+            </div>
+
+            <!-- MAIN ORB — shows global countdown -->
+            <div class="reiki-orb" id="rk-orb">
+                <div class="reiki-time" id="rk-global">45:00</div>
+                <div class="reiki-label" id="rk-orb-lbl">Durée restante</div>
+            </div>
+
+            <!-- SUB TIMER RING — 3 min loop -->
+            <div class="sub-ring-wrap">
+                <svg class="sub-ring-svg" viewBox="0 0 100 100">
+                    <circle class="sub-ring-bg" cx="50" cy="50" r="42"/>
+                    <circle class="sub-ring-fill" id="rk-subring" cx="50" cy="50" r="42"/>
+                </svg>
+                <div class="sub-ring-center">
+                    <div class="sub-time-txt" id="rk-sub">03:00</div>
+                    <div class="sub-time-lbl">prochain son</div>
+                </div>
+            </div>
+
+            <!-- XP strip -->
+            <div class="reiki-xp-strip">
+                <i class="fa-solid fa-star" style="color:var(--secondary)"></i>
+                <span id="rk-xp">+0 XP cette session</span>
+            </div>
+
+            <!-- CONTROLS -->
+            <div class="controls">
+                <button class="btn-icon" id="rk-play" style="background:var(--tertiary);color:white;box-shadow:0 4px 16px rgba(156,39,176,0.35);width:64px;height:64px;font-size:1.4rem">
+                    <i class="fa-solid fa-play"></i>
+                </button>
+                <button class="btn-icon" id="rk-stop" style="background:#F3E5F5;color:var(--tertiary)">
+                    <i class="fa-solid fa-stop"></i>
+                </button>
+            </div>
+        </div>
+        `;
+    },
+
+    mount() {
+        this._remaining = this.TOTAL;
+        this._sub = this.SUB_DURATION;
+        this._running = false;
+        this._sessionXP = 0;
+
+        document.getElementById('rk-back').addEventListener('click', () => {
+            this.teardown();
+            App.navigate('activities');
+        });
+
+        const btnPlay = document.getElementById('rk-play');
+
+        document.getElementById('rk-stop').addEventListener('click', () => {
+            const elapsed = this.TOTAL - this._remaining;
+            if (elapsed > 0) {
+                showToast(`🙌 Session arrêtée · ${this._sessionXP} XP récoltés`);
+            }
+            this.teardown();
+            this.updateUI();
+            btnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+            document.getElementById('rk-orb')?.classList.remove('pulsing');
+        });
+
+        btnPlay.addEventListener('click', () => {
+            if (!this._running) {
+                this.start();
+                btnPlay.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                document.getElementById('rk-orb')?.classList.add('pulsing');
+            } else {
+                this.pause();
+                btnPlay.innerHTML = '<i class="fa-solid fa-play"></i>';
+                document.getElementById('rk-orb')?.classList.remove('pulsing');
+            }
+        });
+    },
+
+    start() {
+        this._running = true;
+        if (!this._audioCtx) {
+            try { this._audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+        }
+        this._interval = setInterval(() => {
+            if (this._remaining <= 0) {
+                // Session complete!
+                this.pause();
+                document.getElementById('rk-orb')?.classList.remove('pulsing');
+                document.getElementById('rk-play').innerHTML = '<i class="fa-solid fa-play"></i>';
+                const lbl = document.getElementById('rk-orb-lbl');
+                if (lbl) lbl.textContent = 'Session terminée ✓';
+                showToast('✨ 45 minutes Reiki complètes ! Magnifique session.');
+                confetti(window.innerWidth / 2, 300);
+                Store.addXP(50, window.innerWidth / 2, 300);
+                Store.unlockBadge('reiki_full');
+                Store.logActivity('reiki', { minutes: 45 });
+                checkAutoBadges();
+                return;
+            }
+
+            this._remaining--;
+            this._sub--;
+
+            // XP every minute
+            const elapsed = this.TOTAL - this._remaining;
+            if (elapsed % 60 === 0 && elapsed > 0) {
+                this._sessionXP += 10;
+                Store.addXP(10);
+                const xpEl = document.getElementById('rk-xp');
+                if (xpEl) xpEl.textContent = `+${this._sessionXP} XP cette session`;
+            }
+
+            // Sub-timer: ring bowl every 3 min
+            if (this._sub <= 0) {
+                this._sub = this.SUB_DURATION;
+                Store.unlockBadge('reiki_bell'); // premier bol débloqué dès la 1ère sonnerie
+                this.playBowl();
+            }
+
+            this.updateUI();
+        }, 1000);
+    },
+
+    pause() {
+        clearInterval(this._interval);
+        this._running = false;
+    },
+
+    updateUI() {
+        // Global: shows remaining time
+        const rm = Math.floor(this._remaining / 60).toString().padStart(2, '0');
+        const rs = (this._remaining % 60).toString().padStart(2, '0');
+        const gEl = document.getElementById('rk-global');
+        if (gEl) gEl.textContent = `${rm}:${rs}`;
+
+        // Sub-timer text
+        const sm = Math.floor(this._sub / 60).toString().padStart(2, '0');
+        const ss = (this._sub % 60).toString().padStart(2, '0');
+        const sEl = document.getElementById('rk-sub');
+        if (sEl) sEl.textContent = `${sm}:${ss}`;
+
+        // Sub-ring fills as the 3 min loop progresses
+        const ring = document.getElementById('rk-subring');
+        if (ring) {
+            const pct = 1 - (this._sub / this.SUB_DURATION);
+            ring.style.strokeDashoffset = 314 * (1 - pct);
+        }
+    },
+
+    playBowl() {
+        const flash = document.getElementById('reiki-flash');
+        if (flash) {
+            flash.style.background = 'rgba(206,147,216,0.4)';
+            setTimeout(() => flash.style.background = 'transparent', 600);
+        }
+        showToast('🔔 Changement de position · Inspirez profondément');
+        if (this._audioCtx) {
+            try {
+                // Layer 2 oscillators for a richer bowl tone
+                [432, 528].forEach((freq, i) => {
+                    const osc  = this._audioCtx.createOscillator();
+                    const gain = this._audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0, this._audioCtx.currentTime + i * 0.05);
+                    gain.gain.linearRampToValueAtTime(0.3, this._audioCtx.currentTime + i * 0.05 + 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this._audioCtx.currentTime + 4);
+                    osc.connect(gain);
+                    gain.connect(this._audioCtx.destination);
+                    osc.start(this._audioCtx.currentTime + i * 0.05);
+                    osc.stop(this._audioCtx.currentTime + 4);
+                });
+            } catch(e) {}
+        }
+    }
+});
+
+
+/* ============================================
+   BADGES CATALOGUE (source de vérité)
+============================================ */
+/* ============================================
+   BADGES CATALOGUE — 27 badges, 4 niveaux
+============================================ */
+const BADGES_CATALOGUE = [
+    // — Découverte —
+    { id:'first_quest',  tier:0, emoji:'🏅', title:'Premier Pas',         desc:'Première quête journalière complétée.' },
+    { id:'reiki_bell',   tier:0, emoji:'🔔', title:'Maître du Temps',      desc:'Premier bol tibétain Reiki entendu (3 min).' },
+    { id:'flow_rider',   tier:0, emoji:'🌊', title:'Flow Rider',           desc:'Flow State déclenché pendant la marche.' },
+    { id:'zen_walk',     tier:0, emoji:'🚶', title:'Zen Walker',           desc:'Première marche consciente de 20 min.' },
+    { id:'yogi',         tier:0, emoji:'🧘', title:'Premier Yogi',         desc:'Un flow de yoga Vinyasa terminé.' },
+    { id:'warrior',      tier:0, emoji:'💪', title:'Guerrier',             desc:'Première séance de workout validée.' },
+    { id:'reiki_full',   tier:0, emoji:'✨',  title:'45 Minutes Zen',      desc:'Session Reiki complète de 45 min.' },
+    { id:'quests_all',   tier:0, emoji:'🌟', title:'Très bien fait !',    desc:'Toutes les quêtes du jour complétées.' },
+    // — Régulier —
+    { id:'yogi_5',       tier:1, emoji:'🧘‍♀️', title:'Yogi Confirmé',      desc:'5 flows de yoga Vinyasa complétés au total.' },
+    { id:'walk_10',      tier:1, emoji:'🏃', title:'Marcheur Assidu',     desc:'10 Zen Walks de 20 min complétées.' },
+    { id:'warrior_5',    tier:1, emoji:'🛡️', title:'Corps de Guerrier',  desc:'5 séances de workout validées.' },
+    { id:'reiki_week',   tier:1, emoji:'🔮', title:'Maître Reiki',         desc:'4 sessions Reiki complètes dans la même semaine.' },
+    { id:'streak_7',     tier:1, emoji:'🔥', title:'Semaine de Feu',      desc:'7 jours consécutifs dans l’app.' },
+    { id:'quest_triple', tier:1, emoji:'🌠', title:'Triplé Quotidien',    desc:'3 jours consécutifs avec toutes les quêtes faites.' },
+    { id:'polyvalent',   tier:1, emoji:'🎯', title:'Polyvalent',           desc:'Les 4 activités réalisées dans la même semaine.' },
+    // — Expert —
+    { id:'monk_21',      tier:2, emoji:'☯️',  title:'Moine Zen',           desc:'21 jours consécutifs dans l’app.' },
+    { id:'explorer',     tier:2, emoji:'🌈', title:'Explorateur de Flows', desc:'Les 4 types de flows yoga complétés au moins une fois.' },
+    { id:'century',      tier:2, emoji:'💯', title:'Century',             desc:'1 000 XP cumulés au total.' },
+    { id:'streak_30',    tier:2, emoji:'🏆', title:'Un Mois de Zen',      desc:'30 jours consécutifs dans l’app.' },
+    { id:'reiki_5h',     tier:2, emoji:'🌌', title:'Endurance Reiki',     desc:'5 heures de Reiki cumulées (300 min).' },
+    { id:'walker_50',    tier:2, emoji:'🗺️',  title:'Grand Marcheur',     desc:'50 Zen Walks de 20 min complétées.' },
+    { id:'quest_7',      tier:2, emoji:'📅', title:'Quête Parfaite',      desc:'7 jours consécutifs avec toutes les quêtes réalisées.' },
+    // — Légendaire —
+    { id:'senator',      tier:3, emoji:'👑', title:'Sénateur du Zen',     desc:'100 jours consécutifs dans l’app.' },
+    { id:'master_10',    tier:3, emoji:'🎯', title:'Grand Maître',        desc:'Atteindre le niveau 10.' },
+    { id:'xp_10k',       tier:3, emoji:'⚡', title:'10 000 XP',          desc:'10 000 XP cumulés au total.' },
+    { id:'awakening',    tier:3, emoji:'🌅', title:'L’Éveil',             desc:'Toutes les 4 activités en une même journée, 30 fois.' },
+    { id:'library',      tier:3, emoji:'📚', title:'Bibliothèque Vivante', desc:'Tous les autres badges débloqués.' },
+];
+
+const TIER_LABELS = ['Découverte', 'Régulier 🥈', 'Expert 🥇', 'Légendaire 💎'];
+
+/* Vérifie et débloque automatiquement tous les badges */
+function checkAutoBadges() {
+    const s  = Store.state;
+    const al = s.activityLog || {};
+
+    // -- Streak --
+    if (s.streak >= 7)   Store.unlockBadge('streak_7');
+    if (s.streak >= 21)  Store.unlockBadge('monk_21');
+    if (s.streak >= 30)  Store.unlockBadge('streak_30');
+    if (s.streak >= 100) Store.unlockBadge('senator');
+
+    // -- Quêtes --
+    if (s.quests.every(q => q.done)) Store.unlockBadge('quests_all');
+    if ((s.perfectQuestStreak || 0) >= 3) Store.unlockBadge('quest_triple');
+    if ((s.perfectQuestStreak || 0) >= 7) Store.unlockBadge('quest_7');
+
+    // -- Yoga --
+    if ((s.yogaCount || 0) >= 5) Store.unlockBadge('yogi_5');
+    const flows4 = ['stretching','energy','relaxation','mobility'];
+    if (flows4.every(f => (s.yogaFlowsCompleted || []).includes(f))) Store.unlockBadge('explorer');
+
+    // -- Walk --
+    if ((s.walkCount || 0) >= 10) Store.unlockBadge('walk_10');
+    if ((s.walkCount || 0) >= 50) Store.unlockBadge('walker_50');
+
+    // -- Workout --
+    if ((s.workoutCount || 0) >= 5) Store.unlockBadge('warrior_5');
+
+    // -- Reiki semaine (4 sessions dans la même semaine) --
+    if (Object.values(s.weekReikiSessions || {}).some(n => n >= 4)) Store.unlockBadge('reiki_week');
+
+    // -- Reiki cumulé --
+    if ((s.reikiMinutes || 0) >= 300) Store.unlockBadge('reiki_5h');
+
+    // -- XP cumulé --
+    if ((s.totalXPEarned || 0) >= 1000)  Store.unlockBadge('century');
+    if ((s.totalXPEarned || 0) >= 10000) Store.unlockBadge('xp_10k');
+
+    // -- Niveau --
+    if (s.level >= 10) Store.unlockBadge('master_10');
+
+    // -- Polyvalent : les 4 activités dans une même semaine --
+    const weekMap = {};
+    Object.entries(al).forEach(([dateStr, acts]) => {
+        const wk = getWeekKey(new Date(dateStr));
+        if (!weekMap[wk]) weekMap[wk] = {};
+        Object.keys(acts).forEach(k => { if (acts[k]) weekMap[wk][k] = true; });
+    });
+    if (Object.values(weekMap).some(w => w.walk && w.yoga && w.workout && w.reiki))
+        Store.unlockBadge('polyvalent');
+
+    // -- L'Éveil : toutes les 4 activités le même jour, 30 fois --
+    const fullDays = Object.values(al).filter(d => d.walk && d.yoga && d.workout && d.reiki).length;
+    if (fullDays >= 30) Store.unlockBadge('awakening');
+
+    // -- Bibliothèque Vivante : tous les badges sauf lui-même --
+    const allOtherIds = BADGES_CATALOGUE.filter(b => b.id !== 'library').map(b => b.id);
+    const earned = new Set((s.achievements || []).map(a => a.id));
+    if (allOtherIds.every(id => earned.has(id))) Store.unlockBadge('library');
+}
+
+/* ============================================
+   VIEW: JOURNEY — 100% dynamique
+============================================ */
+App.register('journey', {
+    render() {
+        const s   = Store.state;
+        const achs = s.achievements || [];
+        const unlockedIds = new Set(achs.map(a => a.id));
+
+        // --- Graphique 7 jours réels ---
+        const chartData = this.buildChartData(s.dailyXP || {});
+        const maxXP     = Math.max(...chartData.map(d => d.xp), 1); // évite division par 0
+
+        // --- Badges débloqués et verrouilllés ---
+        const unlockedBadges = BADGES_CATALOGUE.filter(b => unlockedIds.has(b.id));
+        const lockedBadges   = BADGES_CATALOGUE.filter(b => !unlockedIds.has(b.id));
+
+        return `
+        <div style="margin-bottom:20px">
+            <h2 style="font-family:var(--font-h);font-size:1.4rem;font-weight:800;letter-spacing:-0.03em">Votre Voyage 🗺</h2>
+            <p style="color:var(--text-light);font-size:0.85rem;margin-top:2px">Le chemin parcouru jusqu’ici.</p>
+        </div>
+
+        <!-- STATS -->
+        <div class="stats-row">
+            <div class="stat-tile">
+                <div class="stat-ico" style="background:rgba(0,137,123,0.1);color:var(--primary)"><i class="fa-solid fa-star"></i></div>
+                <div class="stat-val">${s.xp}</div>
+                <div class="stat-lbl">Total XP</div>
+            </div>
+            <div class="stat-tile">
+                <div class="stat-ico" style="background:rgba(156,39,176,0.1);color:var(--tertiary)"><i class="fa-solid fa-layer-group"></i></div>
+                <div class="stat-val">${s.level}</div>
+                <div class="stat-lbl">Niveau</div>
+            </div>
+            <div class="stat-tile">
+                <div class="stat-ico" style="background:rgba(255,152,0,0.1);color:var(--secondary)"><i class="fa-solid fa-fire"></i></div>
+                <div class="stat-val">${s.streak}</div>
+                <div class="stat-lbl">Streak 🔥</div>
+            </div>
+            <div class="stat-tile">
+                <div class="stat-ico" style="background:rgba(56,142,60,0.1);color:#388E3C"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="stat-val">${achs.length}</div>
+                <div class="stat-lbl">Badges</div>
+            </div>
+        </div>
+
+        <!-- GRAPHIQUE XP 7 JOURS RÉELS -->
+        <div class="card">
+            <div class="info-row" style="margin-bottom:16px">
+                <span class="section-title">XP gagné — 7 derniers jours</span>
+                <i class="fa-solid fa-chart-column" style="color:var(--text-light)"></i>
+            </div>
+            <div class="bar-chart-wrap" id="bchart">
+                ${chartData.map(d => {
+                    const isToday   = d.label === this.dayLabel(new Date());
+                    const heightPct = Math.round((d.xp / maxXP) * 100);
+                    const color     = isToday
+                        ? 'linear-gradient(0deg,var(--secondary),var(--secondary-light))'
+                        : 'linear-gradient(0deg,var(--primary-dark),var(--primary-light))';
+                    return `
+                    <div class="bc-col">
+                        <div class="bc-bar" data-h="${heightPct}" data-xp="${d.xp}"
+                             style="height:0;background:${color};position:relative"
+                             title="${d.xp} XP">
+                        </div>
+                        <span class="bc-lbl" style="${isToday ? 'color:var(--secondary);font-weight:700' : ''}">${d.label}</span>
+                    </div>`;
+                }).join('')}
+            </div>
+            <div style="text-align:right;font-size:0.72rem;color:var(--text-light);margin-top:8px">
+                Total 7j : <strong>${chartData.reduce((a,d)=>a+d.xp,0)} XP</strong>
+            </div>
+        </div>
+
+        <!-- BADGES PAR PALIER -->
+        ${[0,1,2,3].map(tier => {
+            const tierBadges   = BADGES_CATALOGUE.filter(b => b.tier === tier);
+            const tierUnlocked = tierBadges.filter(b => unlockedIds.has(b.id));
+            const tierLocked   = tierBadges.filter(b => !unlockedIds.has(b.id));
+            const tierColors   = ['var(--primary)','#FF9800','#9C27B0','#C9A227'];
+            const tierBgs     = ['rgba(0,137,123,0.08)','rgba(255,152,0,0.08)','rgba(156,39,176,0.08)','rgba(201,162,39,0.08)'];
+            return `
+        <div class="card" style="margin-bottom:14px">
+            <div class="info-row" style="margin-bottom:12px">
+                <span style="font-family:var(--font-h);font-weight:700;font-size:0.95rem;color:${tierColors[tier]}">${TIER_LABELS[tier]}</span>
+                <span style="font-size:0.72rem;font-weight:700;background:${tierBgs[tier]};color:${tierColors[tier]};padding:3px 10px;border-radius:20px">${tierUnlocked.length}/${tierBadges.length}</span>
+            </div>
+            ${tierUnlocked.map(b => `
+            <div class="ach-item">
+                <div class="ach-emoji">${b.emoji}</div>
+                <div>
+                    <div class="ach-title">${b.title}</div>
+                    <div class="ach-desc">${b.desc}</div>
+                    <div style="font-size:0.68rem;color:var(--text-light);margin-top:2px">${achs.find(a=>a.id===b.id)?.date || ''}</div>
+                </div>
+            </div>`).join('')}
+            ${tierLocked.map(b => `
+            <div class="ach-item" style="opacity:0.4">
+                <div class="ach-emoji" style="filter:grayscale(1)">🔒</div>
+                <div>
+                    <div class="ach-title" style="color:var(--text-light)">${b.title}</div>
+                    <div class="ach-desc">${b.desc}</div>
+                </div>
+            </div>`).join('')}
+        </div>`;
+        }).join('')}
+        `;
+
+    },
+
+    /* Construit les 7 derniers jours avec leur XP réel */
+    buildChartData(dailyXP) {
+        const result = [];
+        for (let i = 6; i >= 0; i--) {
+            const d   = new Date();
+            d.setDate(d.getDate() - i);
+            result.push({
+                label: this.dayLabel(d),
+                xp:    dailyXP[d.toDateString()] || 0
+            });
+        }
+        return result;
+    },
+
+    dayLabel(d) {
+        return ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'][d.getDay()];
+    },
+
+    mount() {
+        checkAutoBadges();
+        const maxXP = Math.max(
+            ...Array.from(document.querySelectorAll('#bchart .bc-bar')).map(b => parseInt(b.dataset.h) || 0),
+            1
+        );
+        setTimeout(() => {
+            document.querySelectorAll('#bchart .bc-bar').forEach(b => {
+                const pct = parseInt(b.dataset.h) || 0;
+                // Hauteur max 100px, minimum 4px si XP > 0
+                const xp  = parseInt(b.dataset.xp) || 0;
+                b.style.height = xp > 0 ? Math.max(Math.round(pct), 4) + 'px' : '4px';
+                if (xp > 0) {
+                    const tip = document.createElement('span');
+                    tip.style.cssText = 'position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);font-size:0.6rem;font-weight:700;color:var(--text-main);white-space:nowrap';
+                    tip.textContent = xp + ' XP';
+                    b.appendChild(tip);
+                }
+            });
+        }, 100);
+    }
+});
+
+
+/* ============================================
+   VIEW: SOUL (PROFIL)
+============================================ */
+App.register('soul', {
+    render() {
+        const s = Store.state;
+        return `
+        <div style="position:relative;margin-bottom:24px">
+            <div class="soul-cover"></div>
+            <div class="soul-avatar"><i class="fa-solid fa-spa"></i></div>
+        </div>
+
+        <div class="soul-name">Explorateur Zen</div>
+        <div class="soul-aura"><span class="badge badge-tertiary">✦ Aura Émeraude Naissante</span></div>
+
+        <!-- XP RECAP -->
+        <div class="card" style="display:flex;gap:24px;justify-content:center;text-align:center;margin-bottom:16px">
+            <div><div style="font-family:var(--font-h);font-size:1.4rem;font-weight:800">${s.level}</div><div style="font-size:0.75rem;color:var(--text-light)">Niveau</div></div>
+            <div style="width:1px;background:var(--neutral-mid)"></div>
+            <div><div style="font-family:var(--font-h);font-size:1.4rem;font-weight:800">${s.xp}</div><div style="font-size:0.75rem;color:var(--text-light)">XP Total</div></div>
+            <div style="width:1px;background:var(--neutral-mid)"></div>
+            <div><div style="font-family:var(--font-h);font-size:1.4rem;font-weight:800">${s.streak}🔥</div><div style="font-size:0.75rem;color:var(--text-light)">Streak</div></div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="card">
+            <div class="section-title">Préférences</div>
+
+            <div class="setting-row">
+                <div class="setting-left">
+                    <div class="setting-icon">🎵</div>
+                    <span class="setting-label">Sons des Bols Tibétains</span>
+                </div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-left">
+                    <div class="setting-icon">🔔</div>
+                    <span class="setting-label">Rappels quotidiens</span>
+                </div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+
+            <div class="setting-row">
+                <div class="setting-left">
+                    <div class="setting-icon">✨</div>
+                    <span class="setting-label">Animations et effets</span>
+                </div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+        </div>
+
+        <!-- RESET -->
+        <button class="btn-reset" id="btn-reset">
+            <i class="fa-solid fa-arrow-rotate-left" style="margin-right:6px"></i> Remettre à zéro la progression
+        </button>
+        `;
+    },
+    mount() {
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            if (confirm('Êtes-vous sûr ? Toute votre progression sera effacée.')) {
+                Store.reset();
+                App.navigate('dashboard');
+                showToast('🌱 Nouveau départ ! Vous êtes au niveau 1.');
+            }
+        });
+    }
+});
+
+
+/* ============================================
+   UTILS
+============================================ */
+function showToast(msg) {
+    const t = document.createElement('div');
+    t.style.cssText = `position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#263238;color:white;padding:10px 18px;border-radius:9999px;font-size:0.85rem;font-weight:600;z-index:9998;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.2);animation:bubbleUp 2.5s ease-out forwards`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2600);
+}
+
+function confetti(x, y) {
+    const colors = ['#00897B','#FF9800','#9C27B0','#66BB6A','#29B6F6'];
+    for (let i = 0; i < 18; i++) {
+        const p = document.createElement('div');
+        const angle = (Math.random() * 360) * Math.PI / 180;
+        const dist  = 60 + Math.random() * 80;
+        const dx = Math.cos(angle) * dist;
+        const dy = Math.sin(angle) * dist - 60;
+        const dr = (Math.random() - 0.5) * 540 + 'deg';
+        p.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>0.5?'50%':'3px'};pointer-events:none;z-index:9997;--dx:${dx}px;--dy:${dy}px;--dr:${dr};animation:confettiFly 0.7s ease-out forwards`;
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 750);
+    }
+}
+
+
+/* ============================================
+   BOOT
+============================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    Store.updateHeader();
+    App.init();
+});
+</script>
+
+<script>
+  // Enregistrement du Service Worker (PWA hors-ligne)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(() => console.log('✅ Service Worker enregistré'))
+        .catch(err => console.warn('SW error:', err));
+    });
+  }
+</script>
+</body>
+</html>
+
